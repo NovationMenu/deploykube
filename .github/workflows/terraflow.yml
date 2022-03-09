@@ -1,0 +1,50 @@
+name: Terraform sample workflow
+
+on: workflow_dispatch
+
+defaults:
+  run:
+    working-directory: ./terraform
+
+jobs:
+  InstallKubernetes:
+    runs-on: ubuntu-latest
+    env:
+      ARM_CLIENT_ID: ${{secrets.ARM_CLIENT_ID}}
+      ARM_CLIENT_SECRET: ${{secrets.ARM_CLIENT_SECRET}}
+      ARM_SUBSCRIPTION_ID: ${{secrets.ARM_SUBSCRIPTION_ID}}
+      ARM_TENANT_ID: ${{secrets.ARM_TENANT_ID}}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+        
+    - name: List directory
+      run: ls -a
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Plan
+      run: terraform plan
+        
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+  installcontrolleringress:
+    runs-on: ubuntu-latest
+    needs: InstallKubernetes
+    steps:
+    - uses: actions/checkout@main
+    - name: "Configuration et connection a AKS"
+      uses: azure/aks-set-context@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        cluster-name: pfr
+        resource-group: RG-DEPLOYINFRA
+    - uses: azure/k8s-deploy@v1
+      with:
+        namespace: "ingress-nginx"
+        manifests: |
+          ${{ github.workspace }}/manifests/namespace-ingress.yaml
+          ${{ github.workspace }}/manifests/deploy.yaml
