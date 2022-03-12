@@ -16,8 +16,8 @@ data "azurerm_resource_group" "RG-DEPLOYINFRA" {
   name = "RG-DEPLOYINFRA"
 }
 
-data "azurerm_public_ip" "ippfr" {
-  name                = "ippfr"
+data "azurerm_container_registry" "acr" {
+  name = "registrypfr"
   resource_group_name = "RG-DEPLOYINFRA"
 }
 
