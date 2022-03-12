@@ -21,12 +21,13 @@ data "azurerm_public_ip" "ippfr" {
   resource_group_name = "RG-DEPLOYINFRA"
 }
 
-data "azurerm_resource_group" "RG-DEPLOYINFRA" {
-  name = "RG-DEPLOYINFRA"
-}
-
 output "public_ip_address" {
   value = "${data.azurerm_public_ip.ippfr.ip_address}"
+}
+
+data "azurerm_container_registry" "acr" {
+  name                = "registrypfr"
+  resource_group_name = "RG-DEPLOYINFRA"
 }
 
 terraform {
